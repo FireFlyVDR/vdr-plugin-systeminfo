@@ -1,0 +1,80 @@
+This is a "plugin" for the Video Disk Recorder (VDR).
+
+Written by:                  Christoph Haubrich <christoph1.haubrich (AT) arcor.de>
+Project's homepage:          http://firefly.vdr-developer.org/systeminfo/
+Latest version available at: http://firefly.vdr-developer.org/systeminfo/
+
+See the file COPYING for license information.
+
+
+Description:
+------------
+This plugin for Klaus Schmidinger's Video Disc Recorder VDR displays system
+informations like CPU type and speed, disk and swap space etc. It uses the output
+of an external script (systeminfo.sh) which can be freely customized to the
+personal needs.
+
+
+Installation
+------------
+The systeminfo plugin is compiled and installed the same way as any other plugin:
+- cd <VDR>/PLUGINS/src
+- tar xjf vdr-systeminfo-<version>.tar.bz2
+- ln -s systeminfo-<version> systeminfo
+- cd ../..
+- make plugins
+
+Adapt the example script systeminfo.sh in the subfolder "scripts" to your needs
+and configuration, verify that it is execuatable for VDR and copy it to the
+default path /usr/local/bin. Alternatively, you could copy the adapted script to
+any location you like and pass the location of the script as parameter to the plugin
+(see below).
+
+Without adapting the script to your needs you will not receive any usefull results!
+
+You can test the script without vdr by:
+   for i in $(seq 1 16); do /usr/local/bin/systeminfo.sh $i;echo;done
+Change the "16" to your maximum line number.
+
+Configuration
+--------------
+The script systeminfo.sh needs to be customized and must be copied to /usr/local/bin
+or the path and name of the scipt must be supplied as command line parameter to the plugin.
+
+Script output:
+The script is called with incremented numbers until a blank line is returned.
+The basic idea behind the format is that a script produces a name/value pair
+separated by a tab (\t) for each line:
+      "name \t value"
+
+As many values do not occupy a complete line, you can put two values in one line:
+      "name \t value \t value".
+The screen is devided in three columns for that purpose.
+
+If value consist of "numer1 number1", the plugin interpretes these values as
+kilobytes and converts them to MB or GB. These converted values are written in the
+2nd column and a progress bar is drawn in the third column.
+The first number is interpreted as "total", the second as "current".
+
+
+Usage:
+------
+Edit your runvdr (or whatever startup script you use) to load the systeminfo plugin, e.g.
+  vdr -Psysteminfo
+to use systeminfo with the default settings and start VDR.
+
+The path to the external script can be supplied via command line parameter:
+  -s SCRIPT, --script=SCRIPT   optional name and path of system info script
+                               (default: '/usr/local/bin/systeminfo.sh')
+
+
+Setup Options:
+--------------
+The following setting is available in the setup->plugins->systeminfo setup menu:
+- Refresh intervall (s):   1-20 seconds
+
+
+Credits
+-------
+The idea and some conecepts for this plugin came from the sysinfo plugin by
+kikko77 <kikko77@altervista.org> (http://kikko77.altervista.org)

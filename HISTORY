@@ -1,0 +1,12 @@
+VDR Plugin 'systeminfo' Revision History
+----------------------------------------
+
+2008-05-18: Version 0.0.1, internal release
+- Initial revision based on surce code of sysinfo plugin
+
+2008-05-18: Version 0.0.2, not released
+- some internal improvements
+
+2008-10-03: Version 0.1.0
+- refactoring of internal data structures and threading code
+- added support for static entries like kernel version and CPU type
