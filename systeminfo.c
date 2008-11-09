@@ -27,31 +27,35 @@
 #include <vdr/plugin.h>
 #include "displayinfo.h"
 
-static const char *VERSION        = "0.1.0";
+static const char *VERSION        = "0.1.1";
 static const char *DESCRIPTION    = trNOOP("Display various system informations");
-static const char *MAINMENUENTRY  = trNOOP("Systeminfo");
+static const char *MAINMENUENTRY  = trNOOP("System Information");
 
 
 // --- cMenuSetupSysteminfo ----------------------------------------------------
 
 class cMenuSetupSysteminfo : public cMenuSetupPage {
 private:
-  int newRefreshIntervall;
+   int newRefreshIntervall;
+   int newAutoClose;
 protected:
-  virtual void Store(void);
+   virtual void Store(void);
 public:
-  cMenuSetupSysteminfo(void);
-  };
+   cMenuSetupSysteminfo(void);
+};
 
 cMenuSetupSysteminfo::cMenuSetupSysteminfo(void)
 {
-  newRefreshIntervall = RefreshIntervall;
-  Add(new cMenuEditIntItem(tr("Refresh intervall (s)"), &newRefreshIntervall, 1, 20));
+   newRefreshIntervall = RefreshIntervall;
+   newAutoClose = AutoClose;
+   Add(new cMenuEditIntItem(tr("Refresh intervall (s)"), &newRefreshIntervall, 1, 20));
+   Add(new cMenuEditBoolItem(tr("Close display after 2 min."), &newAutoClose));
 }
 
 void cMenuSetupSysteminfo::Store(void)
 {
-  SetupStore("RefreshIntervall",   RefreshIntervall = newRefreshIntervall);
+   SetupStore("RefreshIntervall",   RefreshIntervall = newRefreshIntervall);
+   SetupStore("AutoClose",          AutoClose = newAutoClose);
 }
 
 // --- cPluginSysteminfo -------------------------------------------------------
@@ -64,7 +68,7 @@ public:
    cPluginSysteminfo(void);
    virtual ~cPluginSysteminfo();
    virtual const char *Version(void) { return VERSION; }
-   virtual const char *Description(void) { return DESCRIPTION; }
+   virtual const char *Description(void) { return tr(DESCRIPTION); }
    virtual const char *CommandLineHelp(void);
    virtual bool ProcessArgs(int argc, char *argv[]);
    virtual bool Initialize(void);
@@ -74,7 +78,7 @@ public:
    //virtual void MainThreadHook(void);
    virtual cString Active(void);
    virtual time_t WakeupTime(void);
-   virtual const char *MainMenuEntry(void) { return MAINMENUENTRY; }
+   virtual const char *MainMenuEntry(void) { return tr(MAINMENUENTRY); }
    virtual cOsdObject *MainMenuAction(void);
    virtual cMenuSetupPage *SetupMenu(void);
    virtual bool SetupParse(const char *Name, const char *Value);
@@ -133,6 +137,10 @@ bool cPluginSysteminfo::Initialize(void)
 bool cPluginSysteminfo::Start(void)
 {
    // Start any background activities the plugin shall perform.
+#if APIVERSNUM < 10507
+   RegisterI18n(Phrases);
+#endif
+
    return true;
 }
 
@@ -182,6 +190,7 @@ bool cPluginSysteminfo::SetupParse(const char *Name, const char *Value)
 {
    // Parse your own setup parameters and store their values.
    if      (!strcasecmp(Name, "RefreshIntervall"))   RefreshIntervall = atoi(Value);
+   else if (!strcasecmp(Name, "AutoClose"))          AutoClose = atoi(Value);
    else
       return false;
    return true;

@@ -12,14 +12,19 @@
 # 1)   Name \t Value         	displays Name and Value
 # 2)   Name \t Value1 \t Value2 displays Name, Value1 and Value2
 # 3)   Name \t total used       displays an additional progress bar (percentage) after the values
-# 4)   s \t Name \t ...         defines a static value, will not be called again
+# 4)   s \t Name \t ...         defines a static value, this line is only requested during the first cycle
 #
-# test with: for i in $(seq 1 16); do /usr/local/bin/systeminfo.sh $i;echo;done
+# special keywords (they are replaced by the plugin with the actual value):
+#      CPU%    CPU usage in percent
 #
+# test with: for i in $(seq 1 16); do systeminfo.sh $i;echo;done
+#
+
+PATH=/usr/bin:/bin:/sbin
 
 case "$1" in
 	1)	# kernel version (static)
-		KERNEL=$(/bin/uname -rm)
+		KERNEL=$(uname -rm)
 		echo -ne "s\tLinux Kernel:\t"$KERNEL
         	;;
 
@@ -39,7 +44,12 @@ case "$1" in
 		elif test -f /etc/lsb-release; then
 			DISTRI=$(grep DISTRIB_ID /etc/lsb-release|cut -d"=" -f 2)
 			RELEASE=$(grep DISTRIB_DESCRIPTION /etc/lsb-release|cut -d"=" -f 2)
-
+		elif test -x /usr/bin/crux; then
+			DISTRI="Crux"
+			RELEASE=$(crux|cut -d" " -f 3)
+		elif test -f /etc/arch-release; then
+			DISTRI="Arch Linux"
+			RELEASE=$(LANG= pacman -Qi filesystem | sed -n 's|Version.*: ||p')
 		else
 			DISTRI="unknown"
 			RELEASE="unknow"
@@ -49,48 +59,47 @@ case "$1" in
         	;;
 
 	3)	# CPU type (static)
-		CPUTYPE=$(/usr/bin/grep 'model name' /proc/cpuinfo | /usr/bin/cut -d':' -f 2  | /usr/bin/cut -d' ' -f2- | /usr/bin/uniq)
+		CPUTYPE=$(grep 'model name' /proc/cpuinfo | cut -d':' -f 2  | cut -d' ' -f2- | uniq)
 		echo -ne "s\tCPU Type:\t"$CPUTYPE
         	;;
 
 	4)	# current CPU speed
-		VAR=$(/usr/bin/grep 'cpu MHz' /proc/cpuinfo|/usr/bin/sed 's/.*: *\([0-9]*\)\.[0-9]*/\1 MHz/')
+		VAR=$(grep 'cpu MHz' /proc/cpuinfo | sed 's/.*: *\([0-9]*\)\.[0-9]*/\1 MHz/')
 		echo -ne "CPU speed:\t"$VAR
 		exit
         	;;
 
 	5)	# hostname and IP (static)
-		hostname=$(/bin/hostname)
-		dnsname=$(/bin/dnsdomainname)
-		IP=$(/sbin/ifconfig br0|/usr/bin/grep inet|/usr/bin/cut -d: -f2|/usr/bin/cut -d' ' -f1)
+		hostname=$(hostname)
+		dnsname=$(dnsdomainname)
+		IP=$(ifconfig eth0 | grep inet | cut -d: -f2 | cut -d' ' -f1)
 		echo -ne "s\tHostname:\t"${hostname:-<unknown>}"."${dnsname:-<unknown>}"\tIP: "${IP:-N/A}
 		exit
         	;;
 
 	6)	# fan speeds
-		CPU=$(/usr/bin/sensors|/usr/bin/grep -i 'CPU FAN'|/usr/bin/tr -s ' '|/usr/bin/cut -d' ' -f 3)
-		CASE=$(/usr/bin/sensors|/usr/bin/grep -i 'SYS Fan'|/usr/bin/tr -s ' '|/usr/bin/cut -d' ' -f 3)
+		CPU=$( sensors | grep -i 'CPU FAN' | tr -s ' ' | cut -d' ' -f 3)
+		CASE=$(sensors | grep -i 'SYS Fan' | tr -s ' ' | cut -d' ' -f 3)
 		echo -ne "Fans:\tCPU: "$CPU" rpm\tCase: "$CASE" rpm"
 		exit
         	;;
 
 	7)	# temperature of CPU and mainboard
-		CPU=$(/usr/bin/sensors|/usr/bin/grep -i 'CPU TEMP'|/usr/bin/tr -s ' '|/usr/bin/cut -d' ' -f 3)
-		MB=$(/usr/bin/sensors|/usr/bin/grep -i 'Sys temp'|/usr/bin/tr -s ' '|/usr/bin/cut -d' ' -f 3)
+		CPU=$(sensors | grep -i 'CPU TEMP' | tr -s ' ' | cut -d' ' -f 3)
+		MB=$( sensors | grep -i 'Sys temp' | tr -s ' ' | cut -d' ' -f 3)
 		echo -ne "Temperatures:\tCPU: "$CPU"\tMB: "$MB
 		exit
         	;;
 
 	8)	# temperature of hard disks
-		DISK1=$(/usr/sbin/hddtemp /dev/sda|/usr/bin/cut -d: -f1,3)
-		DISK2=$(/usr/sbin/hddtemp /dev/sdb|/usr/bin/cut -d: -f1,3)
+		DISK1=$(hddtemp /dev/sda | cut -d: -f1,3)
+		DISK2=$(hddtemp /dev/sdb | cut -d: -f1,3)
 		echo -ne "\t"$DISK1"\t"$DISK2
 		exit
         	;;
 
 	9)	# CPU usage
-		echo -ne "CPU time:\t"
-                ps -eo%C | awk '/[.]/ { a=a+$1 } ; END { print a " %" }'
+		echo -e "CPU time:\tCPU%"
 		exit
         	;;
 
@@ -100,19 +109,19 @@ case "$1" in
 		;;
 
 	11)	# video disk usage
-		echo -ne "Video Disk:\t"
-		/bin/df -Pk /mnt/vdr|/usr/bin/tail -n 1|/usr/bin/tr -s ' '|/usr/bin/cut -d' ' -f 2,4
+		VAR=$(df -Pk /video0 | tail -n 1 | tr -s ' ' | cut -d' ' -f 2,4)
+		echo -ne "Video Disk:\t"$VAR
 		exit
         	;;
 
 	12)	# memory usage
-		VAR=$(/usr/bin/grep -E 'MemTotal|MemFree' /proc/meminfo|/usr/bin/cut -d: -f2|/usr/bin/tr -d ' ')
+		VAR=$( grep -E 'MemTotal|MemFree' /proc/meminfo | cut -d: -f2 | tr -d ' ')
 		echo -ne "Memory:\t"$VAR
 		exit
         	;;
 
 	13)	# swap usage
-		VAR=$(/usr/bin/grep -E 'SwapTotal|SwapFree' /proc/meminfo|/usr/bin/cut -d: -f2|/usr/bin/tr -d ' ')
+		VAR=$(grep -E 'SwapTotal|SwapFree' /proc/meminfo | cut -d: -f2 | tr -d ' ')
 		echo -ne "Swap:\t"$VAR
 		exit
         	;;

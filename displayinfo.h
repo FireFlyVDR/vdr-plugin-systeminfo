@@ -7,9 +7,21 @@
  * $Id$
  */
 
+#include <vdr/config.h>
 #include <vdr/osdbase.h>
 
+#if APIVERSNUM < 10507
+#include "i18n.h"
+#define trNOOP(s) (s)
+#endif
+
+#if APIVERSNUM < 10509
+#define trVDR(s) tr(s)
+#endif
+
+
 extern int RefreshIntervall;
+extern int AutoClose;
 
 class cInfoLine : public cListObject{
 private:
@@ -34,8 +46,10 @@ private:
    cCondWait Wait;
    bool firstDisplay;
    bool OsdInitialized;
+   unsigned long long ticks[4], ticksold[4];
 
    void Action();
+   float GetCpuPct();
    char* ExecShellCmd(const char*);
    cString PrepareInfoline(int, bool*);
 public:

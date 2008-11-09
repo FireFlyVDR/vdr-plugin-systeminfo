@@ -51,10 +51,17 @@ DEFINES += -D_GNU_SOURCE -DPLUGIN_NAME_I18N='"$(PLUGIN)"'
 ### The object files (add further files here):
 
 OBJS = $(PLUGIN).o displayinfo.o
+#i18n.o
 
 ### The main target:
+TARGETS = libvdr-$(PLUGIN).so
+ifneq ($(shell grep -l 'Phrases' $(VDRDIR)/i18n.c),$(VDRDIR)/i18n.c)
+	TARGETS += i18n
+else
+	OBJS += i18n.o
+endif
 
-all: libvdr-$(PLUGIN).so i18n
+all: $(TARGETS)
 
 ### Implicit rules:
 
@@ -75,7 +82,8 @@ $(DEPFILE): Makefile
 PODIR     = po
 LOCALEDIR = $(VDRDIR)/locale
 I18Npo    = $(wildcard $(PODIR)/*.po)
-I18Nmsgs  = $(addprefix $(LOCALEDIR)/, $(addsuffix /LC_MESSAGES/vdr-$(PLUGIN).mo, $(notdir $(foreach file, $(I18Npo), $(basename $(file))))))
+I18Nmo    = $(addsuffix .mo, $(foreach file, $(I18Npo), $(basename $(file))))
+I18Ndirs  = $(notdir $(foreach file, $(I18Npo), $(basename $(file))))
 I18Npot   = $(PODIR)/$(PLUGIN).pot
 
 %.mo: %.po
@@ -83,14 +91,17 @@ I18Npot   = $(PODIR)/$(PLUGIN).pot
 
 $(I18Npot): $(wildcard *.c)
 	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --msgid-bugs-address='<see README>' -o $@ $^
-
-%.po: $(I18Npot)
+$(I18Npo): $(I18Npot)
 	msgmerge -U --no-wrap --no-location --backup=none -q $@ $<
 	@touch $@
 
-$(I18Nmsgs): $(LOCALEDIR)/%/LC_MESSAGES/vdr-$(PLUGIN).mo: $(PODIR)/%.mo
-	@mkdir -p $(dir $@)
-	cp $< $@
+.PHONY: i18n
+i18n: $(I18Nmo)
+	@mkdir -p $(LOCALEDIR)
+	for i in $(I18Ndirs); do\
+	    mkdir -p $(LOCALEDIR)/$$i/LC_MESSAGES;\
+	    cp $(PODIR)/$$i.mo $(LOCALEDIR)/$$i/LC_MESSAGES/vdr-$(PLUGIN).mo;\
+	    done
 
 .PHONY: i18n
 i18n: $(I18Nmsgs) $(I18Npot)
@@ -110,4 +121,4 @@ dist: clean
 	@echo Distribution package created as $(PACKAGE).tar.bz2
 
 clean:
-	@-rm -f $(OBJS) $(DEPFILE) *.so *.tgz *.tar.bz2 core* *~ $(PODIR)/*.mo $(PODIR)/*.pot
+	@-rm -f $(OBJS) $(DEPFILE) *.so *.tgz *.tar.bz2 core* *~ */*~ $(PODIR)/*.mo $(PODIR)/*.pot

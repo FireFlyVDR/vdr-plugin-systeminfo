@@ -56,6 +56,14 @@ kilobytes and converts them to MB or GB. These converted values are written in t
 2nd column and a progress bar is drawn in the third column.
 The first number is interpreted as "total", the second as "current".
 
+If the special keyword "CPU%" is found in the second column, it will be replaced by the
+actual cpu usage (which is too complicated to caclulate in a script and therefor
+implemented in the plugin).
+
+If in front of the already mentionend string an additional "s\t" appears, this entry is
+considered static which means that it will only be evaluted during the first display cycle.
+This reduces the load of the machine as cpu type, distribution and kernel version are very
+unlikely to change during the display period and therefore are only evaluated once.
 
 Usage:
 ------
@@ -70,8 +78,10 @@ The path to the external script can be supplied via command line parameter:
 
 Setup Options:
 --------------
-The following setting is available in the setup->plugins->systeminfo setup menu:
-- Refresh intervall (s):   1-20 seconds
+The following settings are available in the setup->plugins->systeminfo setup menu:
+- Refresh intervall (s):     time between two refreshs of the display, 1-20 seconds
+- Close display after 2 min: choose wether display is closed after the default VDR
+                             timeout of 2 minutes or if it never closes automatically
 
 
 Credits

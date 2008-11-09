@@ -7,6 +7,15 @@ VDR Plugin 'systeminfo' Revision History
 2008-05-18: Version 0.0.2, not released
 - some internal improvements
 
-2008-10-03: Version 0.1.0
+2008-10-05: Version 0.1.0
 - refactoring of internal data structures and threading code
 - added support for static entries like kernel version and CPU type
+
+2008-11-09: Version 0.1.1
+- added distri crux to systeminfo.sh (thanks to ronnykornexl @vdr-portal.de)
+- added italian translation (thanks to Diego Pierotto)
+- added support for VDR 1.4.7 (requested by cinfo @vdr-portal.de)
+- fixed crash without proper systeminfo.sh (reported by tuxnet @vdr-portal.de)
+- omitted pathes to commands and set PATH explicitly in systeminfo.sh (suggested by ronnykornexl @vdr-portal.de)
+- added support to display the current CPU usage with key word "CPU%" in systeminfo.sh
+- added code to select if display is closed after timeout (thanks to e9hack @vdr-portal.de)
