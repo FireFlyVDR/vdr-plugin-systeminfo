@@ -27,7 +27,7 @@
 #include <vdr/plugin.h>
 #include "displayinfo.h"
 
-static const char *VERSION        = "0.1.1";
+static const char *VERSION        = "0.1.2";
 static const char *DESCRIPTION    = trNOOP("Display various system informations");
 static const char *MAINMENUENTRY  = trNOOP("System Information");
 

@@ -19,3 +19,7 @@ VDR Plugin 'systeminfo' Revision History
 - omitted pathes to commands and set PATH explicitly in systeminfo.sh (suggested by ronnykornexl @vdr-portal.de)
 - added support to display the current CPU usage with key word "CPU%" in systeminfo.sh
 - added code to select if display is closed after timeout (thanks to e9hack @vdr-portal.de)
+
+2010-11-28: Version 0.1.2
+- include Make.global in Makefile if available
+- changed Arch Linux release in systeminfo.sh

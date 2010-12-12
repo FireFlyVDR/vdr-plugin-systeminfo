@@ -49,7 +49,7 @@ case "$1" in
 			RELEASE=$(crux|cut -d" " -f 3)
 		elif test -f /etc/arch-release; then
 			DISTRI="Arch Linux"
-			RELEASE=$(LANG= pacman -Qi filesystem | sed -n 's|Version.*: ||p')
+			RELEASE="rolling-release"
 		else
 			DISTRI="unknown"
 			RELEASE="unknow"
