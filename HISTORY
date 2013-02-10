@@ -23,3 +23,6 @@ VDR Plugin 'systeminfo' Revision History
 2010-11-28: Version 0.1.2
 - include Make.global in Makefile if available
 - changed Arch Linux release in systeminfo.sh
+
+2013-02-10: Version 0.1.3
+- adapted Makefile to be compatible with VDR 1.7.36+
