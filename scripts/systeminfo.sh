@@ -29,7 +29,10 @@ case "$1" in
         	;;
 
 	2)	# distribution release (static)
-		if test -f /etc/SuSE-release; then
+		if test -f /etc/os-release; then
+			DISTRI=$(grep "^NAME=" /etc/os-release|cut -d"=" -f 2)
+			RELEASE=$(grep "^PRETTY_NAME=" /etc/os-release|cut -d"=" -f 2|tr -d '"'|tr -d "'")
+		elif test -f /etc/SuSE-release; then
 			DISTRI="openSuSE"
 			RELEASE=$(head -n 1 /etc/SuSE-release)
 		elif test -f /etc/redhat-release; then
@@ -52,7 +55,7 @@ case "$1" in
 			RELEASE="rolling-release"
 		else
 			DISTRI="unknown"
-			RELEASE="unknow"
+			RELEASE="unknown"
 		fi
 		echo -ne "s\tDistribution:\t"$RELEASE
 		exit
@@ -77,50 +80,56 @@ case "$1" in
 		exit
         	;;
 
-	6)	# fan speeds
+	6)      # uptime
+		UPTIME=$(last -1 reboot|head -n 1|tr -s " "|cut -d' ' -f5-)
+		echo -ne "uptime:\t${UPTIME}"
+		exit
+		;;
+
+	7)	# fan speeds
 		CPU=$( sensors | grep -i 'CPU FAN' | tr -s ' ' | cut -d' ' -f 3)
 		CASE=$(sensors | grep -i 'SYS Fan' | tr -s ' ' | cut -d' ' -f 3)
 		echo -ne "Fans:\tCPU: "$CPU" rpm\tCase: "$CASE" rpm"
 		exit
         	;;
 
-	7)	# temperature of CPU and mainboard
+	8)	# temperature of CPU and mainboard
 		CPU=$(sensors | grep -i 'CPU TEMP' | tr -s ' ' | cut -d' ' -f 3)
 		MB=$( sensors | grep -i 'Sys temp' | tr -s ' ' | cut -d' ' -f 3)
 		echo -ne "Temperatures:\tCPU: "$CPU"\tMB: "$MB
 		exit
         	;;
 
-	8)	# temperature of hard disks
+	9)	# temperature of hard disks
 		DISK1=$(hddtemp /dev/sda | cut -d: -f1,3)
 		DISK2=$(hddtemp /dev/sdb | cut -d: -f1,3)
 		echo -ne "\t"$DISK1"\t"$DISK2
 		exit
         	;;
 
-	9)	# CPU usage
+	10)	# CPU usage
 		echo -e "CPU time:\tCPU%"
 		exit
         	;;
 
-	10)	# header (static)
+	11)	# header (static)
 		echo -ne "s\t\ttotal / free"
 		exit
 		;;
 
-	11)	# video disk usage
+	12)	# video disk usage
 		VAR=$(df -Pk /video0 | tail -n 1 | tr -s ' ' | cut -d' ' -f 2,4)
 		echo -ne "Video Disk:\t"$VAR
 		exit
         	;;
 
-	12)	# memory usage
+	13)	# memory usage
 		VAR=$( grep -E 'MemTotal|MemFree' /proc/meminfo | cut -d: -f2 | tr -d ' ')
 		echo -ne "Memory:\t"$VAR
 		exit
         	;;
 
-	13)	# swap usage
+	14)	# swap usage
 		VAR=$(grep -E 'SwapTotal|SwapFree' /proc/meminfo | cut -d: -f2 | tr -d ' ')
 		echo -ne "Swap:\t"$VAR
 		exit

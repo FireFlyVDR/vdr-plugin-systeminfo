@@ -75,6 +75,7 @@ The path to the external script can be supplied via command line parameter:
   -s SCRIPT, --script=SCRIPT   optional name and path of system info script
                                (default: '/usr/local/bin/systeminfo.sh')
 
+If you are using the conf.d mechanism you can also use the provided file 50-systeminfo.conf.
 
 Setup Options:
 --------------

@@ -26,3 +26,10 @@ VDR Plugin 'systeminfo' Revision History
 
 2013-02-10: Version 0.1.3
 - adapted Makefile to be compatible with VDR 1.7.36+
+
+2016-03-20: Version 0.1.4
+- added support for /etc/os-release for getting the distribution and fall back to distribution specific files if
+  it does not exist
+- added example script 50-systeminfo.conf for conf.d mechanism
+- fixed compile errors with VDR 2.3.1
+- added uptime to systeminfo.sh

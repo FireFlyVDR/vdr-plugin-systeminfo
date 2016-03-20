@@ -224,9 +224,9 @@ cString cInfoLines::PrepareInfoline(int line, bool *isStatic)
 void cInfoLines::Action()
 {
    int line = 0;
-   Lock();
+   cThread::Lock();
    Clear();
-   Unlock();
+   cThread::Unlock();
    cString osdline = NULL;
 
    GetCpuPct(); // init cpu usage
@@ -236,35 +236,35 @@ void cInfoLines::Action()
 
       osdline = PrepareInfoline(++line, &isStatic);
       if ((const char*)osdline) {
-         Lock();
+         cThread::Lock();
          Add(new cInfoLine(osdline, isStatic));
-         Unlock();
+         cThread::Unlock();
       }
    }
    while (Running() && NULL != (const char*)osdline && line <= MAX_LINES);
 
    if (!First()) {
-      Lock();
+      cThread::Lock();
       osdline = tr("Error getting system information");
       Add(new cInfoLine(osdline, true));
       state++;
-      Unlock();
+      cThread::Unlock();
    }
       else
    {
-      Lock();
+      cThread::Lock();
       state++;
-      Unlock();
+      cThread::Unlock();
       if (Running())
          Wait.Wait(RefreshIntervall*1000);
 
       while (Running()) {
          cInfoLine * currentline = NULL;
-         Lock();
+         cThread::Lock();
          if (OsdInitialized)
             firstDisplay = false;
          currentline = First();
-         Unlock();
+         cThread::Unlock();
 
          line = 0;
          do {
@@ -274,18 +274,18 @@ void cInfoLines::Action()
             if (!currentline || !currentline->isStatic()) {
                osdline = PrepareInfoline(line, &isStatic);
                if ((const char*)osdline) {
-                  Lock();
+                  cThread::Lock();
                   currentline->SetStr(osdline);
-                  Unlock();
+                  cThread::Unlock();
                }
             }
             currentline = Next(currentline);
          }
          while (Running() && NULL != currentline && line <= MAX_LINES);
 
-         Lock();
+         cThread::Lock();
          state++;
-         Unlock();
+         cThread::Unlock();
 
          if (Running()) {
             Wait.Wait(RefreshIntervall*1000);
