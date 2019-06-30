@@ -33,3 +33,6 @@ VDR Plugin 'systeminfo' Revision History
 - added example script 50-systeminfo.conf for conf.d mechanism
 - fixed compile errors with VDR 2.3.1
 - added uptime to systeminfo.sh
+
+2019-06-30: Version 0.1.5
+- changed deprecated '%a' to the POSIX compliant '%m' in all scanf() calls (thanks to hd.brummy@VDR-portal)

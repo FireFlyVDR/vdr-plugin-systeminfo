@@ -167,7 +167,7 @@ cString cInfoLines::PrepareInfoline(int line, bool *isStatic)
       osdline = *isStatic ? systeminfo+2 : systeminfo;
 
       // check for unformatted disk usage (in kB without units)
-      if (3 == sscanf(systeminfo, "%a[a-zA-Z,/0-9 ]: %f %f", &pname, &fval1, &fval2)) {
+      if (3 == sscanf(systeminfo, "%m[a-zA-Z,/0-9 ]: %f %f", &pname, &fval1, &fval2)) {
          fval1 /= 1024.0*1024.0;
          fval2 /= 1024.0*1024.0;
          if (fval1 == 0.0)
@@ -184,7 +184,7 @@ cString cInfoLines::PrepareInfoline(int line, bool *isStatic)
       }
 
       // check for values in kB
-      else if (3 == sscanf(systeminfo, "%a[a-zA-Z,/0-9 ]: %fkB %fkB", &pname, &fval1, &fval2)) {
+      else if (3 == sscanf(systeminfo, "%m[a-zA-Z,/0-9 ]: %fkB %fkB", &pname, &fval1, &fval2)) {
          if (fval1 == 0.0)
             osdline = cString::sprintf("%s:\t%.1f kB / %.1f kB", pname, fval1, fval2);
          else {
@@ -207,7 +207,7 @@ cString cInfoLines::PrepareInfoline(int line, bool *isStatic)
       }
 
       // check for CPU%
-      else if (1 == sscanf(systeminfo, "%a[a-zA-Z,/0-9 ]: CPU%%", &pname) && NULL != strstr(systeminfo, "CPU%")) {
+      else if (1 == sscanf(systeminfo, "%m[a-zA-Z,/0-9 ]: CPU%%", &pname) && NULL != strstr(systeminfo, "CPU%")) {
          fval2 = GetCpuPct();
          int frac = min(BARLEN,max(0, int(fval2*BARLEN/100.0)));
          memset(progressbar + 1,'|',frac);
