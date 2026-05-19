@@ -21,11 +21,18 @@ int AutoClose = 1;
 cMenuSystemInfo::cMenuSystemInfo(const char *Script)
 :cOsdMenu(tr("System Information"), 14, 18)
 {
-   Add(new cOsdItem(tr("please wait"), osUnknown, false));
-   SetHelp(NULL, NULL, NULL, NULL);
+   InfoLines = NULL;
 
-   InfoLines = new cInfoLines(Script);
-   InfoLines->StateChanged(infolinesState);
+   if (access(Script, X_OK)) {
+      Add(new cOsdItem(cString::sprintf(tr("Script '%s' not found or not executable"), Script), osUnknown, false));
+   }
+   else {
+      Add(new cOsdItem(tr("please wait"), osUnknown, false));
+
+      InfoLines = new cInfoLines(Script);
+      InfoLines->StateChanged(infolinesState);
+   }
+   SetHelp(NULL, NULL, NULL, NULL);
 }
 
 
@@ -42,7 +49,7 @@ eOSState cMenuSystemInfo::ProcessKey(eKeys Key)
    if (state == osUnknown) {
       switch (Key) {
          case kBack:    return osEnd;
-         case kNone:    if (InfoLines->StateChanged(infolinesState))
+         case kNone:    if (InfoLines && InfoLines->StateChanged(infolinesState))
                            Set();
                         break;
          default:       break;
