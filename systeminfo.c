@@ -63,7 +63,7 @@ void cMenuSetupSysteminfo::Store(void)
 class cPluginSysteminfo : public cPlugin {
 private:
    // Add any member variables or functions you may need here.
-   char scriptname[MaxFileName];
+   cString scriptname;
 public:
    cPluginSysteminfo(void);
    virtual ~cPluginSysteminfo();
@@ -92,7 +92,7 @@ cPluginSysteminfo::cPluginSysteminfo(void)
    // Initialize any member variables here.
    // DON'T DO ANYTHING ELSE THAT MAY HAVE SIDE EFFECTS, REQUIRE GLOBAL
    // VDR OBJECTS TO EXIST OR PRODUCE ANY OUTPUT!
-   strncpy(scriptname, "/usr/local/bin/systeminfo.sh", sizeof(scriptname));
+   scriptname = "/usr/local/bin/systeminfo.sh";
 }
 
 cPluginSysteminfo::~cPluginSysteminfo()
@@ -117,8 +117,8 @@ bool cPluginSysteminfo::ProcessArgs(int argc, char *argv[])
    int c, option_index = 0;
    while ((c = getopt_long(argc, argv, "s:", long_options, &option_index)) != -1) {
       switch (c) {
-        case 's': strncpy(scriptname, optarg, sizeof(scriptname));
-                  isyslog("systeminfo: using systeminfo script: '%s'", scriptname);
+        case 's': scriptname = optarg;
+                  isyslog("systeminfo: using systeminfo script: '%s'", *scriptname);
                   break;
         default:
                   isyslog("systeminfo: unknown command-line argument: '%s'", optarg);
@@ -177,7 +177,7 @@ time_t cPluginSysteminfo::WakeupTime(void)
 cOsdObject *cPluginSysteminfo::MainMenuAction(void)
 {
    // Perform the action when selected from the main VDR menu.
-   return new cMenuSystemInfo(scriptname);
+   return new cMenuSystemInfo(*scriptname);
 }
 
 cMenuSetupPage *cPluginSysteminfo::SetupMenu(void)

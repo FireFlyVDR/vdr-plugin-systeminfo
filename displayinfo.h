@@ -42,7 +42,7 @@ public:
 class cInfoLines : public cList<cInfoLine>, public cThread {
 private:
    int state;
-   char scriptname[MaxFileName];
+   cString scriptname;
    cCondWait Wait;
    bool firstDisplay;
    bool OsdInitialized;

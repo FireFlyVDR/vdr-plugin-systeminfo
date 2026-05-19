@@ -90,7 +90,7 @@ cInfoLines::cInfoLines(const char *script)
    state = 0;
    firstDisplay = true;
    OsdInitialized = false;
-   strncpy(scriptname, script, sizeof(scriptname));
+   scriptname = script;
    Start();
 }
 
@@ -158,7 +158,7 @@ cString cInfoLines::PrepareInfoline(int line, bool *isStatic)
    char *systeminfo = NULL;
    cString osdline = NULL;
 
-   systeminfo = ExecShellCmd((const char *)cString::sprintf("%s %d", scriptname, line));
+   systeminfo = ExecShellCmd((const char *)cString::sprintf("%s %d", *scriptname, line));
    //isyslog("systeminfo: %2d, %s", line, systeminfo);
    if (NULL != (const char *)systeminfo) {
       float fval1, fval2 = 0;
