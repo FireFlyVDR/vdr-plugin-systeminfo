@@ -10,16 +10,6 @@
 #include <vdr/config.h>
 #include <vdr/osdbase.h>
 
-#if APIVERSNUM < 10507
-#include "i18n.h"
-#define trNOOP(s) (s)
-#endif
-
-#if APIVERSNUM < 10509
-#define trVDR(s) tr(s)
-#endif
-
-
 extern int RefreshIntervall;
 extern int AutoClose;
 
@@ -29,7 +19,7 @@ private:
    bool isstatic;
    cOsdItem *osditem;
 public:
-   cInfoLine(cString String, bool isStatic) { SetStr(String); isstatic = isStatic; } ;
+   cInfoLine(cString String, bool IsStatic) { SetStr(String); isstatic = IsStatic; } ;
    ~cInfoLine() {};
    void SetStr(cString String) { string = String; };
    cString GetStr(void) { return string; };
@@ -50,10 +40,10 @@ private:
 
    void Action();
    float GetCpuPct();
-   char* ExecShellCmd(const char*);
-   cString PrepareInfoline(int, bool*);
+   char *ExecShellCmd(const char *Cmd);
+   cString PrepareInfoline(int Line, bool *IsStatic);
 public:
-   cInfoLines(const char *path);
+   cInfoLines(const char *Script);
    ~cInfoLines();
    bool StateChanged(int &State);
    bool FirstDisplay(void) { return firstDisplay; };
@@ -66,10 +56,10 @@ private:
    cInfoLines *InfoLines;
    int infolinesState;
    char scriptpath[MaxFileName];
-   char *ExecShellCmd(const char *cmd);
+   char *ExecShellCmd(const char *Cmd);
    void Set(void);
 public:
-   cMenuSystemInfo(const char *path);
+   cMenuSystemInfo(const char *Script);
    virtual ~cMenuSystemInfo();
    virtual eOSState ProcessKey(eKeys Key);
 };

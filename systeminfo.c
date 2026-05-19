@@ -73,18 +73,10 @@ public:
    virtual bool ProcessArgs(int argc, char *argv[]);
    virtual bool Initialize(void);
    virtual bool Start(void);
-   //virtual void Stop(void);
-   //virtual void Housekeeping(void);
-   //virtual void MainThreadHook(void);
-   virtual cString Active(void);
-   virtual time_t WakeupTime(void);
    virtual const char *MainMenuEntry(void) { return tr(MAINMENUENTRY); }
    virtual cOsdObject *MainMenuAction(void);
    virtual cMenuSetupPage *SetupMenu(void);
    virtual bool SetupParse(const char *Name, const char *Value);
-   virtual bool Service(const char *Id, void *Data = NULL);
-   virtual const char **SVDRPHelpPages(void);
-   virtual cString SVDRPCommand(const char *Command, const char *Option, int &ReplyCode);
 };
 
 cPluginSysteminfo::cPluginSysteminfo(void)
@@ -137,41 +129,7 @@ bool cPluginSysteminfo::Initialize(void)
 bool cPluginSysteminfo::Start(void)
 {
    // Start any background activities the plugin shall perform.
-#if APIVERSNUM < 10507
-   RegisterI18n(Phrases);
-#endif
-
    return true;
-}
-
-/*
-void cPluginSysteminfo::Stop(void)
-{
-   // Stop any background activities the plugin is performing.
-}
-
-void cPluginSysteminfo::Housekeeping(void)
-{
-   // Perform any cleanup or other regular tasks.
-}
-
-void cPluginSysteminfo::MainThreadHook(void)
-{
-   // Perform actions in the context of the main program thread.
-   // WARNING: Use with great care - see PLUGINS.html!
-}
-*/
-
-cString cPluginSysteminfo::Active(void)
-{
-   // Return a message string if shutdown should be postponed
-   return NULL;
-}
-
-time_t cPluginSysteminfo::WakeupTime(void)
-{
-   // Return custom wakeup time for shutdown script
-   return 0;
 }
 
 cOsdObject *cPluginSysteminfo::MainMenuAction(void)
@@ -194,25 +152,6 @@ bool cPluginSysteminfo::SetupParse(const char *Name, const char *Value)
    else
       return false;
    return true;
-
-}
-
-bool cPluginSysteminfo::Service(const char *Id, void *Data)
-{
-   // Handle custom service requests from other plugins
-   return false;
-}
-
-const char **cPluginSysteminfo::SVDRPHelpPages(void)
-{
-   // Return help text for SVDRP commands this plugin implements
-   return NULL;
-}
-
-cString cPluginSysteminfo::SVDRPCommand(const char *Command, const char *Option, int &ReplyCode)
-{
-   // Process SVDRP commands this plugin implements
-   return NULL;
 }
 
 VDRPLUGINCREATOR(cPluginSysteminfo); // Don't touch this!

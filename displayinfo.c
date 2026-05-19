@@ -18,13 +18,13 @@ int AutoClose = 1;
 
 // --- cMenuSystemInfo ----------------------------------------------------
 
-cMenuSystemInfo::cMenuSystemInfo(const char *script)
+cMenuSystemInfo::cMenuSystemInfo(const char *Script)
 :cOsdMenu(tr("System Information"), 14, 18)
 {
    Add(new cOsdItem(tr("please wait"), osUnknown, false));
    SetHelp(NULL, NULL, NULL, NULL);
 
-   InfoLines = new cInfoLines(script);
+   InfoLines = new cInfoLines(Script);
    InfoLines->StateChanged(infolinesState);
 }
 
@@ -82,15 +82,15 @@ void cMenuSystemInfo::Set()
 }
 
 
-// --- cMenuSetupSysteminfo ----------------------------------------------------
+// --- cInfoLines ----------------------------------------------------
 
-cInfoLines::cInfoLines(const char *script)
+cInfoLines::cInfoLines(const char *Script)
 :cThread("systeminfo")
 {
    state = 0;
    firstDisplay = true;
    OsdInitialized = false;
-   scriptname = script;
+   scriptname = Script;
    Start();
 }
 
@@ -147,7 +147,7 @@ float cInfoLines::GetCpuPct(void)
 }
 
 
-cString cInfoLines::PrepareInfoline(int line, bool *isStatic)
+cString cInfoLines::PrepareInfoline(int Line, bool *IsStatic)
 {
    #define BARLEN 30
    char progressbar[BARLEN+3] = "";
@@ -158,13 +158,13 @@ cString cInfoLines::PrepareInfoline(int line, bool *isStatic)
    char *systeminfo = NULL;
    cString osdline = NULL;
 
-   systeminfo = ExecShellCmd((const char *)cString::sprintf("%s %d", *scriptname, line));
-   //isyslog("systeminfo: %2d, %s", line, systeminfo);
+   systeminfo = ExecShellCmd((const char *)cString::sprintf("%s %d", *scriptname, Line));
+   //isyslog("systeminfo: %2d, %s", Line, systeminfo);
    if (NULL != (const char *)systeminfo) {
       float fval1, fval2 = 0;
       char *pname = NULL;
-      *isStatic = !strncasecmp(systeminfo, "s\t", 2);
-      osdline = *isStatic ? systeminfo+2 : systeminfo;
+      *IsStatic = !strncasecmp(systeminfo, "s\t", 2);
+      osdline = *IsStatic ? systeminfo+2 : systeminfo;
 
       // check for unformatted disk usage (in kB without units)
       if (3 == sscanf(systeminfo, "%m[a-zA-Z,/0-9 ]: %f %f", &pname, &fval1, &fval2)) {
@@ -296,13 +296,13 @@ void cInfoLines::Action()
 }
 
 
-char *cInfoLines::ExecShellCmd(const char *cmd)
+char *cInfoLines::ExecShellCmd(const char *Cmd)
 {  // taken from vdr config.c
    char *result = NULL;
-   //isyslog("executing command '%s'", cmd);
+   //isyslog("executing command '%s'", Cmd);
    cPipe p;
-   if (!p.Open(cmd, "r"))
-      esyslog("ERROR: can't open pipe for command '%s'", cmd);
+   if (!p.Open(Cmd, "r"))
+      esyslog("ERROR: can't open pipe for command '%s'", Cmd);
    else {
       int l = 0;
       int c;
