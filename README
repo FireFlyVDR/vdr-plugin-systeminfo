@@ -11,7 +11,7 @@ Description:
 ------------
 This plugin for Klaus Schmidinger's Video Disc Recorder VDR displays system
 informations like CPU type and speed, disk and swap space etc. It uses the output
-of an external script (systeminfo.sh) which can be freely customized to the
+of an external script (vdr-systeminfo.sh) which can be freely customized to the
 personal needs.
 
 
@@ -24,7 +24,7 @@ The systeminfo plugin is compiled and installed the same way as any other plugin
 - cd ../..
 - make plugins
 
-Adapt the example script systeminfo.sh in the subfolder "scripts" to your needs
+Adapt the example script vdr-systeminfo.sh in the subfolder "scripts" to your needs
 and configuration, verify that it is execuatable for VDR and copy it to the
 default path /usr/local/bin. Alternatively, you could copy the adapted script to
 any location you like and pass the location of the script as parameter to the plugin
@@ -33,12 +33,12 @@ any location you like and pass the location of the script as parameter to the pl
 Without adapting the script to your needs you will not receive any usefull results!
 
 You can test the script without vdr by:
-   for i in $(seq 1 16); do /usr/local/bin/systeminfo.sh $i;echo;done
+   for i in $(seq 1 16); do /usr/local/bin/vdr-systeminfo.sh $i;echo;done
 Change the "16" to your maximum line number.
 
 Configuration
 --------------
-The script systeminfo.sh needs to be customized and must be copied to /usr/local/bin
+The script vdr-systeminfo.sh needs to be customized and must be copied to /usr/local/bin
 or the path and name of the scipt must be supplied as command line parameter to the plugin.
 
 Script output:
@@ -73,7 +73,7 @@ to use systeminfo with the default settings and start VDR.
 
 The path to the external script can be supplied via command line parameter:
   -s SCRIPT, --script=SCRIPT   optional name and path of system info script
-                               (default: '/usr/local/bin/systeminfo.sh')
+                               (default: '/usr/local/bin/vdr-systeminfo.sh')
 
 If you are using the conf.d mechanism you can also use the provided file 50-systeminfo.conf.
 

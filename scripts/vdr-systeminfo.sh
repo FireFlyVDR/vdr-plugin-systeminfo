@@ -1,5 +1,5 @@
 #!/bin/bash
-# systeminfo.sh: external data collection script
+# vdr-systeminfo.sh: external data collection script
 # This file belongs to the VDR plugin systeminfo
 #
 # See the main source file 'systeminfo.c' for copyright information and

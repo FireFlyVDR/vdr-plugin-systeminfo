@@ -84,7 +84,7 @@ cPluginSysteminfo::cPluginSysteminfo(void)
    // Initialize any member variables here.
    // DON'T DO ANYTHING ELSE THAT MAY HAVE SIDE EFFECTS, REQUIRE GLOBAL
    // VDR OBJECTS TO EXIST OR PRODUCE ANY OUTPUT!
-   scriptname = "/usr/local/bin/systeminfo.sh";
+   scriptname = "/usr/local/bin/vdr-systeminfo.sh";
 }
 
 cPluginSysteminfo::~cPluginSysteminfo()
@@ -96,7 +96,7 @@ const char *cPluginSysteminfo::CommandLineHelp(void)
 {
    // Return a string that describes all known command line options.
    return "  -s SCRIPT, --script=SCRIPT   optional name and path of system info script\n"
-          "                               (default: '/usr/local/bin/systeminfo.sh')\n";
+          "                               (default: '/usr/local/bin/vdr-systeminfo.sh')\n";
 }
 
 bool cPluginSysteminfo::ProcessArgs(int argc, char *argv[])
