@@ -37,7 +37,7 @@ static const char *MAINMENUENTRY  = trNOOP("System Information");
 class cMenuSetupSysteminfo : public cMenuSetupPage {
 private:
    int newRefreshIntervall;
-   int newAutoClose;
+   int newAutoCloseSec;
 protected:
    virtual void Store(void);
 public:
@@ -47,15 +47,16 @@ public:
 cMenuSetupSysteminfo::cMenuSetupSysteminfo(void)
 {
    newRefreshIntervall = RefreshIntervall;
-   newAutoClose = AutoClose;
+   newAutoCloseSec = AutoCloseSec;
    Add(new cMenuEditIntItem(tr("Refresh intervall (s)"), &newRefreshIntervall, 1, 20));
-   Add(new cMenuEditBoolItem(tr("Close display after 2 min."), &newAutoClose));
+   Add(new cMenuEditIntItem(tr("Close display after (s)"), &newAutoCloseSec, 0, 600, trVDR("never")));
 }
 
 void cMenuSetupSysteminfo::Store(void)
 {
    SetupStore("RefreshIntervall",   RefreshIntervall = newRefreshIntervall);
-   SetupStore("AutoClose",          AutoClose = newAutoClose);
+   SetupStore("AutoClose");
+   SetupStore("AutoCloseSec",       AutoCloseSec = newAutoCloseSec);
 }
 
 // --- cPluginSysteminfo -------------------------------------------------------
@@ -148,7 +149,7 @@ bool cPluginSysteminfo::SetupParse(const char *Name, const char *Value)
 {
    // Parse your own setup parameters and store their values.
    if      (!strcasecmp(Name, "RefreshIntervall"))   RefreshIntervall = atoi(Value);
-   else if (!strcasecmp(Name, "AutoClose"))          AutoClose = atoi(Value);
+   else if (!strcasecmp(Name, "AutoCloseSec"))       AutoCloseSec = atoi(Value);
    else
       return false;
    return true;

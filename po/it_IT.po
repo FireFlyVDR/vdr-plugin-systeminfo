@@ -35,5 +35,5 @@ msgstr "Mostra diverse informazioni di sistema"
 msgid "Refresh intervall (s)"
 msgstr "Intervallo aggiornamento (s)"
 
-msgid "Close display after 2 min."
-msgstr "Chiudi schermata dopo 2 min."
+msgid "Close display after (s)"
+msgstr "Chiudi schermata dopo (s)"

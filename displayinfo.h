@@ -11,7 +11,7 @@
 #include <vdr/osdbase.h>
 
 extern int RefreshIntervall;
-extern int AutoClose;
+extern int AutoCloseSec;
 
 class cInfoLine : public cListObject{
 private:
@@ -55,6 +55,7 @@ class cMenuSystemInfo : public cOsdMenu {
 private:
    cInfoLines *InfoLines;
    int infolinesState;
+   cTimeMs autocloseTimer;
    char scriptpath[MaxFileName];
    char *ExecShellCmd(const char *Cmd);
    void Set(void);

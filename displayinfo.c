@@ -14,14 +14,14 @@
 #define MAX_LINES 50
 
 int RefreshIntervall = 5;
-int AutoClose = 1;
+int AutoCloseSec = 20;
 
 // --- cMenuSystemInfo ----------------------------------------------------
-
 cMenuSystemInfo::cMenuSystemInfo(const char *Script)
 :cOsdMenu(tr("System Information"), 14, 18)
 {
    InfoLines = NULL;
+   autocloseTimer.Set(AutoCloseSec * 1000);
 
    if (access(Script, X_OK)) {
       Add(new cOsdItem(cString::sprintf(tr("Script '%s' not found or not executable"), Script), osUnknown, false));
@@ -54,8 +54,7 @@ eOSState cMenuSystemInfo::ProcessKey(eKeys Key)
                         break;
          default:       break;
       }
-      if (!AutoClose)
-         state = osContinue;
+      state = AutoCloseSec && autocloseTimer.TimedOut() ? osEnd : osContinue;
    }
    return state;
 }
