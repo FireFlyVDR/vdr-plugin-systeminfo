@@ -9,7 +9,7 @@
 #
 # possible output formats:
 # (blanks around tabs only for better reading)
-# 1)   Name \t Value         	displays Name and Value
+# 1)   Name \t Value            displays Name and Value
 # 2)   Name \t Value1 \t Value2 displays Name, Value1 and Value2
 # 3)   Name \t total used       displays an additional progress bar (percentage) after the values
 # 4)   s \t Name \t ...         defines a static value, this line is only requested during the first cycle
@@ -20,8 +20,6 @@
 # test with: systeminfo.sh [a|all]
 # this iterates over all entries and prints the results
 #
-
-PATH=/usr/bin:/bin:/sbin
 
 case "$1" in
 	a|all)  # iterate over all entries for testing
@@ -37,122 +35,133 @@ case "$1" in
 		done
 		;;
 
-	1)	# kernel version (static)
-		KERNEL=$(uname -rm)
-		echo -ne "s\tLinux Kernel:\t"$KERNEL
-        	;;
-
-	2)	# distribution release (static)
+	1)	# distribution and release (static)
 		if test -f /etc/os-release; then
-			DISTRI=$(grep "^NAME=" /etc/os-release|cut -d"=" -f 2)
-			RELEASE=$(grep "^PRETTY_NAME=" /etc/os-release|cut -d"=" -f 2|tr -d '"'|tr -d "'")
+			RELEASE=$(grep "^PRETTY_NAME=" /etc/os-release|cut -d'"' -f 2)
 		elif test -f /etc/SuSE-release; then
-			DISTRI="openSuSE"
 			RELEASE=$(head -n 1 /etc/SuSE-release)
 		elif test -f /etc/redhat-release; then
-			DISTRI="RedHat"
 			RELEASE=$(head -n 1 /etc/redhat-release)
 		elif test -f /etc/debian_version; then
-			DISTRI="Debian"
 			RELEASE=$(head -n 1 /etc/debian_version)
 		elif test -f /etc/gentoo-release; then
-			DISTRI="Gentoo"
 			RELEASE=$(head -n 1 /etc/gentoo-release)
 		elif test -f /etc/lsb-release; then
-			DISTRI=$(grep DISTRIB_ID /etc/lsb-release|cut -d"=" -f 2)
 			RELEASE=$(grep DISTRIB_DESCRIPTION /etc/lsb-release|cut -d"=" -f 2)
 		elif test -x /usr/bin/crux; then
-			DISTRI="Crux"
 			RELEASE=$(crux|cut -d" " -f 3)
 		elif test -f /etc/arch-release; then
-			DISTRI="Arch Linux"
 			RELEASE="rolling-release"
 		else
-			DISTRI="unknown"
 			RELEASE="unknown"
 		fi
-		echo -ne "s\tDistribution:\t"$RELEASE
+		echo -ne "s\tDistribution:\t${RELEASE}"
 		exit
-        	;;
+		;;
 
-	3)	# CPU type (static)
-		CPUTYPE=$(grep 'model name' /proc/cpuinfo | cut -d':' -f 2  | cut -d' ' -f2- | uniq)
-		echo -ne "s\tCPU Type:\t"$CPUTYPE
-        	;;
+	2)	# kernel version (static)
+		KERNEL=$(uname -rm)
+		echo -ne "s\tLinux Kernel:\t${KERNEL}"
+		;;
 
-	4)	# current CPU speed
-		VAR=$(grep 'cpu MHz' /proc/cpuinfo | sed 's/.*: *\([0-9]*\)\.[0-9]*/\1 MHz/')
-		echo -ne "CPU speed:\t"$VAR
-		exit
-        	;;
-
-	5)	# hostname and IP (static)
+	3)	# hostname and IP (static)
+		interface="eth0"
 		hostname=$(hostname)
 		dnsname=$(dnsdomainname)
-		IP=$(ifconfig eth0 | grep inet | cut -d: -f2 | cut -d' ' -f1)
-		echo -ne "s\tHostname:\t"${hostname:-<unknown>}"."${dnsname:-<unknown>}"\tIP: "${IP:-N/A}
+		IP=$(ip a sh dev $interface | grep "inet " | cut -d' ' -f6)
+		speed=$(cat /sys/class/net/${interface}/speed)
+		echo -ne "s\tHostname:\t${hostname:-<unknown>}.${dnsname:-<unknown>}\tIPv4: ${IP:-N/A}  ${speed:-<unknown>} Mbit/s"
 		exit
-        	;;
+		;;
 
-	6)      # uptime
+	4) # uptime
 		UPTIME=$(last -1 reboot|head -n 1|tr -s " "|cut -d' ' -f5-)
 		echo -ne "uptime:\t${UPTIME}"
 		exit
 		;;
 
-	7)	# fan speeds
-		CPU=$( sensors | grep -i 'CPU FAN' | tr -s ' ' | cut -d' ' -f 3)
-		CASE=$(sensors | grep -i 'SYS Fan' | tr -s ' ' | cut -d' ' -f 3)
-		echo -ne "Fans:\tCPU: "$CPU" rpm\tCase: "$CASE" rpm"
-		exit
-        	;;
+	5)	# CPU type (static)
+		CPUTYPE=$(grep 'model name' /proc/cpuinfo | uniq | cut -d':' -f 2)
+		echo -ne "s\tCPU Type:\t${CPUTYPE}"
+		;;
 
-	8)	# temperature of CPU and mainboard
-		CPU=$(sensors | grep -i 'CPU TEMP' | tr -s ' ' | cut -d' ' -f 3)
-		MB=$( sensors | grep -i 'Sys temp' | tr -s ' ' | cut -d' ' -f 3)
-		echo -ne "Temperatures:\tCPU: "$CPU"\tMB: "$MB
+	6)	# current CPU frequency
+		VAR=$(cat /sys/devices/system/cpu/cpu?/cpufreq/scaling_cur_freq)
+		echo -ne "CPU frequency:\t"$(sed 's/.\{3\}$/ MHz/' <<<"$VAR")
 		exit
-        	;;
+		;;
 
-	9)	# temperature of hard disks
-		DISK1=$(hddtemp /dev/sda | cut -d: -f1,3)
-		DISK2=$(hddtemp /dev/sdb | cut -d: -f1,3)
-		echo -ne "\t"$DISK1"\t"$DISK2
-		exit
-        	;;
-
-	10)	# CPU usage
+	7)	# CPU usage
 		echo -e "CPU time:\tCPU%"
 		exit
-        	;;
+		;;
 
-	11)	# header (static)
+	7)	# X resolution
+		RES=$(DISPLAY=:0 xrandr|grep '*')
+		echo -ne "s\tX-Resolution:\t$(echo ${RES%\*+}) Hz"
+		exit
+		;;
+
+	8)	# GPU frequency
+		DRM_DEVICE="$(find /sys/devices -type d -name drm -print 2>/dev/null)"
+		GPU_CUR=$(cat ${DRM_DEVICE}/card?/gt_cur*)
+		GPU_MAX=$(cat ${DRM_DEVICE}/card?/gt_max*)
+		echo -ne "GPU frequency:\tcur: ${GPU_CUR} MHz\tmax: ${GPU_MAX} MHz"
+		exit
+		;;
+
+	9)	# fan speeds
+		SENSORS=$(/usr/bin/sensors)
+		CPU=$(echo "$SENSORS"|grep -i 'CPU FAN'|tr -s ' '|cut -d' ' -f 3)
+		CASE1=$(echo "$SENSORS"|grep -i 'Front Fan'|tr -s ' '|cut -d' ' -f 3)
+		echo -ne "Lüfter:\tCPU: "$CPU" rpm\tFront: "$CASE1" rpm"
+		exit
+		;;
+
+	10)	# temperature of CPU and mainboard
+		SENSORS=$(/usr/bin/sensors)
+		CPU=$(echo "$SENSORS"|grep -i 'Package id 0'|tr -s ' '|cut -d' ' -f 4)
+		MB=$(echo "$SENSORS"|grep -i 'SYSTIN'|tr -s ' '|cut -d' ' -f 2)
+		echo -ne "Temperaturen:\tCPU: "$CPU"\tMB: "$MB
+		exit
+		;;
+
+	11)	# temperature of a SSD and a HDD
+		# sensors requires module "drivetemp" to be loaded into kernel to show HDD temp
+		DISK1=$(sudo /usr/sbin/smartctl -a /dev/nvme0n1|grep "^Temperature:"|tr -s " "| cut -f 2 -d" ")
+		DISK2=$(/usr/bin/sensors -Au|grep -A 2 drivetemp-scsi-2-0|tail -n 1|cut -d: -f2)
+		echo -ne "\tnvme01: ${DISK1} °C\t/dev/sdb:${DISK2} °C"
+		exit
+		;;
+
+	12)	# temperature of two HDD
+		SENSORS=$(/usr/bin/sensors -Au)
+		DISK1=$(echo "$SENSORS"|grep -A 2 drivetemp-scsi-4-0|tail -n 1|cut -d: -f2)
+		DISK2=$(echo "$SENSORS"|grep -A 2 drivetemp-scsi-5-0|tail -n 1|cut -d: -f2)
+		echo -ne "\tSCSI-4:${DISK1} °C\tSCSI-5:${DISK2} °C"
+		;;
+
+	13)	# header (static)
 		echo -ne "s\t\ttotal / free"
 		exit
 		;;
 
-	12)	# video disk usage
-		VAR=$(df -Pk /video0 | tail -n 1 | tr -s ' ' | cut -d' ' -f 2,4)
+	14)	# video disk usage
+		VAR=$(df -k --output=size,avail /srv/vdr/video0 | tail -n 1)
 		echo -ne "Video Disk:\t"$VAR
 		exit
         	;;
 
-	13)	# memory usage
-		VAR=$( grep -E 'MemTotal|MemFree' /proc/meminfo | cut -d: -f2 | tr -d ' ')
+	15)	# memory usage
+		VAR=$( grep -E 'MemTotal|MemFree' /proc/meminfo | cut -d: -f2)
 		echo -ne "Memory:\t"$VAR
 		exit
         	;;
 
-	14)	# swap usage
-		VAR=$(grep -E 'SwapTotal|SwapFree' /proc/meminfo | cut -d: -f2 | tr -d ' ')
+	16)	# swap usage
+		VAR=$(grep -E 'SwapTotal|SwapFree' /proc/meminfo | cut -d: -f2)
 		echo -ne "Swap:\t"$VAR
 		exit
         	;;
-	test)
-		echo ""
-		echo "Usage: systeminfo.sh {1|2|3|4|...}"
-		echo ""
-		exit 1
-		;;
 esac
 exit
