@@ -17,12 +17,26 @@
 # special keywords (they are replaced by the plugin with the actual value):
 #      CPU%    CPU usage in percent
 #
-# test with: for i in $(seq 1 16); do systeminfo.sh $i;echo;done
+# test with: systeminfo.sh [a|all]
+# this iterates over all entries and prints the results
 #
 
 PATH=/usr/bin:/bin:/sbin
 
 case "$1" in
+	a|all)  # iterate over all entries for testing
+		i=1
+		while :
+		do
+			RESULT=$($0 $i)
+			if [ -z "$RESULT" ]; then
+				break
+			fi
+			printf "%2d %s\n" $i "${RESULT#s$'\t'}"
+			let i=i+1
+		done
+		;;
+
 	1)	# kernel version (static)
 		KERNEL=$(uname -rm)
 		echo -ne "s\tLinux Kernel:\t"$KERNEL
