@@ -1,7 +1,7 @@
 /*
  * systeminfo.c: A VDR plugin to display various system informations in the OSD
  *
- * Copyright (C) 2008 Christoph Haubrich
+ * Copyright (C) 2008-2026 Christoph Haubrich
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 #include <vdr/plugin.h>
 #include "displayinfo.h"
 
-static const char *VERSION        = "0.1.5";
+static const char *VERSION        = "0.2.0";
 static const char *DESCRIPTION    = trNOOP("Display various system informations");
 static const char *MAINMENUENTRY  = trNOOP("System Information");
 
@@ -63,7 +63,6 @@ void cMenuSetupSysteminfo::Store(void)
 
 class cPluginSysteminfo : public cPlugin {
 private:
-   // Add any member variables or functions you may need here.
    cString scriptname;
 public:
    cPluginSysteminfo(void);
@@ -96,7 +95,7 @@ cPluginSysteminfo::~cPluginSysteminfo()
 const char *cPluginSysteminfo::CommandLineHelp(void)
 {
    // Return a string that describes all known command line options.
-   return "  -s SCRIPT, --script=SCRIPT   optional name and path of system info script\n"
+   return "  -s SCRIPT, --script=SCRIPT   optional name and path of systeminfo script\n"
           "                               (default: '/usr/local/bin/vdr-systeminfo.sh')\n";
 }
 

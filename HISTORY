@@ -36,3 +36,15 @@ VDR Plugin 'systeminfo' Revision History
 
 2019-06-30: Version 0.1.5
 - changed deprecated '%a' to the POSIX compliant '%m' in all scanf() calls (thanks to hd.brummy@VDR-portal)
+
+2026-09-10: Version 0.2.0
+- fix strncpy compiler warnings
+- code cleanup with dropping support for VDR versions before 2.0 (version 2.6+ recommended)
+- improve robustness by checking if the required script exists and is executable
+- rename systeminfo.sh to vdr-systeminfo.sh which is now the new default script name
+- modify vdr-systeminfo.sh script to show all lines for configuring/debugging with parameter 'a' or 'all'
+- extend vdr-systeminfo.sh script with more and optimized examples
+- make timeout until close configurable including 'never'
+- change dist package to .tar.gz
+- internal redesign, add support for dynamic column width of VDR 2.8.2+
+- added number of OS updates to vdr-systeminfo.sh and simplified getting distribution name
