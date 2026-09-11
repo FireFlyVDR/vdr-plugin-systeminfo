@@ -66,7 +66,7 @@ void cMenuSystemInfo::Set()
    if (firstDisplay)
    {
       Clear();
-#if defined(APIVERSNUM) && APIVERSNUM >= 30012
+#if defined(APIVERSNUM) && APIVERSNUM >= 30013
       int t1 = 0;
       int t2 = 0;
       const cFont *Font = dynamic_cast<cSkinDisplayMenu *>(cSkinDisplay::Current())->GetTextAreaFont(false);
@@ -75,7 +75,7 @@ void cMenuSystemInfo::Set()
       for (cInfoLine *line = InfoLines->First(); line; line = InfoLines->Next(line))
       {
          Add(line->GetOsdItem());
-#if defined(APIVERSNUM) && APIVERSNUM >= 30012
+#if defined(APIVERSNUM) && APIVERSNUM >= 30013
          const char *text = line->GetStr();
          if (Font && !isempty(text)) {
             if (const char *Tab1 = strchr(text, '\t')) {
@@ -92,7 +92,7 @@ void cMenuSystemInfo::Set()
 #endif
       }
 
-#if defined(APIVERSNUM) && APIVERSNUM >= 30012
+#if defined(APIVERSNUM) && APIVERSNUM >= 30013
       if (Font) {
          if (t1 > 0) {
             t1 += Font->Width("  "); // to have some distance between name and value
