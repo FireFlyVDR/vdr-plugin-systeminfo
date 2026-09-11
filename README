@@ -53,7 +53,7 @@ The blanks around the tab are for only better readability here and not in the sc
 As many values do not occupy a complete line in OSD, you can put two values in one line:
       name \t value1 \t value2
 
-The screen is devided in three columns for that purpose.
+The screen is divided in three columns for that purpose.
 
 If a line looks like "name \t value1 value2" or "name \t value1 kB value2 kB" as e.g.
 displayed by the 'df' command (note the blank(s) between the values instead of tab) the
@@ -62,10 +62,10 @@ MB or GB. These converted values are written in the 2nd column and a progress ba
 drawn in the third column showing "used of total" percentage.
 
 If the special keyword "CPU%" is found in the second column, it will be replaced by the
-actual cpu usage (which is too complex to caclulate in a script and therefore implemented
+actual cpu usage (which is too complex to calculate in a script and therefore implemented
 in the plugin).
 
-If in front of the already mentionend strings an additional "s\t" appears, this entry is
+If in front of the already mentioned strings an additional "s\t" appears, this entry is
 considered 'static' which means that it will only be evaluated during the first display
 cycle. This reduces the load of the machine as for example cpu type, distribution and
 kernel version are very unlikely to change during the display period and therefore are
@@ -87,12 +87,12 @@ an empty line is discovered.
 Setup Options:
 --------------
 The following settings are available in the setup->plugins->systeminfo setup menu:
-- Refresh intervall (s):     time between two refreshs of the display (1-20 seconds)
+- Refresh interval (s):      time between two refreshs of the display (1-20 seconds)
 - Close display after (s):   time in seconds until the display closes automatically.
                              A value of 'never' disables the automatic close
 
 
 Credits
 -------
-The idea and some conecepts for this plugin came from the sysinfo plugin by
+The idea and some concepts for this plugin came from the sysinfo plugin by
 kikko77 <kikko77@altervista.org> (http://kikko77.altervista.org)
