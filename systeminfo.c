@@ -28,7 +28,7 @@
 #include "displayinfo.h"
 
 static const char *VERSION        = "0.2.0";
-static const char *DESCRIPTION    = trNOOP("Display various system informations");
+static const char *DESCRIPTION    = trNOOP("Display various system information");
 static const char *MAINMENUENTRY  = trNOOP("System Information");
 
 
