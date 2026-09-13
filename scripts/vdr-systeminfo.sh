@@ -54,10 +54,16 @@ case "$1" in
 			. /etc/os-release
 			case "$ID" in
 				"debian"|"ubuntu")
-					UPDATES="$(apt list --upgradable 2>/dev/null|grep -v "^Listing..."|wc -l) available"
+					UPDATES="$(apt list --upgradable 2>/dev/null | grep -v "^Listing..." | wc -l) available"
 					;;
 				"opensuse-leap")
-					UPDATES="$(zypper lu|grep -c "^v") available"
+					UPDATES="$(zypper lu | grep -c "^v") available"
+					;;
+				"fedora")
+					UPDATES="$(dnf check-update -q | grep -c '^[a-zA-Z0-9]') available"
+					;;
+				"endeavouros"|"arch")
+					UPDATES="$(checkupdates 2>/dev/null | wc -l) available"
 					;;
 				*)
 					UPDATES="unknown Distribution ID: $ID ($NAME $VERSION)"
