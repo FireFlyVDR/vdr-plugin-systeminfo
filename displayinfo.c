@@ -253,17 +253,16 @@ void cInfoLines::Action()
 {
    int line = 0;
    cString osdline;
+   bool isStatic = false;
    GetCpuPct(); // init CPU usage
 
    do {
-      bool isStatic = false;
-
       osdline = PrepareInfoline(++line, &isStatic);
-      if (!isempty(*osdline)) {
+      if (!isempty(*osdline) || isStatic) {
          Add(new cInfoLine(osdline, isStatic));
       }
    }
-   while (Running() && !isempty(*osdline) && line <= MAX_LINES);
+   while (Running() && (!isempty(*osdline) || isStatic) && line <= MAX_LINES);
 
    if (First() == NULL) {
       Add(new cInfoLine(tr("Error getting system information"), true));
