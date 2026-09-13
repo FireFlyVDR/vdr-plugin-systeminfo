@@ -11,7 +11,7 @@
 #include <vdr/osdbase.h>
 #include <atomic>
 
-extern int RefreshIntervall;
+extern int RefreshInterval;
 extern int AutoCloseSec;
 
 class cInfoLine : public cListObject{

@@ -13,7 +13,7 @@
 
 #define MAX_LINES 50
 
-int RefreshIntervall = 5;
+int RefreshInterval = 5;
 int AutoCloseSec = 20;
 
 // --- cMenuSystemInfo ----------------------------------------------------
@@ -135,7 +135,7 @@ cInfoLines::~cInfoLines()
 {
    if (Running()) {
       Wait.Signal();
-      Cancel(RefreshIntervall);
+      Cancel(RefreshInterval);
    }
 }
 
@@ -274,7 +274,7 @@ void cInfoLines::Action()
       state++;
 
       while (Running()) {
-         Wait.Wait(RefreshIntervall*1000);
+         Wait.Wait(RefreshInterval*1000);
          cInfoLine *currentline = First();
          line = 0;
          while (Running() && currentline && ++line <= MAX_LINES) {
