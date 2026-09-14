@@ -197,6 +197,7 @@ cString cInfoLines::PrepareInfoline(int Line, bool *IsStatic)
    if (!isempty(*systeminfo)) {
       float fval1, fval2 = 0;
       char *pname = NULL;
+      char *unit = NULL;
       if (IsStatic) {
          *IsStatic = !strncasecmp(*systeminfo, "s\t", 2);
          systeminfo = *IsStatic ? cString(strdup((*systeminfo) + 2), true) : systeminfo;
@@ -241,6 +242,19 @@ cString cInfoLines::PrepareInfoline(int Line, bool *IsStatic)
 
          osdline = cString::sprintf("%s:\t%.1f %%\t%s", pname, fval2, progressbar);
          free(pname);
+      }
+
+      // check for generic percentage
+      else if (3 == sscanf(*systeminfo, "%m[-a-zA-Z,/0-9 ]: %f %m[%]", &pname, &fval2, &unit)) {
+         if (fval2 <   0.0) fval2 =   0.0;
+         if (fval2 > 100.0) fval2 = 100.0;
+         int frac = min(BARLEN,max(0, int(fval2*BARLEN/100.0)));
+         memset(progressbar + 1,'|',frac);
+         memset(progressbar + 1 + frac ,' ', BARLEN - frac);
+
+         osdline = cString::sprintf("%s:\t%.1f %s\t%s", pname, fval2, unit, progressbar);
+         free(pname);
+         free(unit);
       }
       else
          osdline = systeminfo;
