@@ -69,23 +69,25 @@ void cMenuSystemInfo::Set()
 #if defined(APIVERSNUM) && APIVERSNUM >= 30013
       int t1 = 0;
       int t2 = 0;
-      const cFont *Font = dynamic_cast<cSkinDisplayMenu *>(cSkinDisplay::Current())->GetTextAreaFont(false);
+      const cFont *font = dynamic_cast<cSkinDisplayMenu *>(cSkinDisplay::Current())->GetTextAreaFont(false);
 #endif
       cThreadLock InfoLinesLock(InfoLines);
       for (cInfoLine *line = InfoLines->First(); line; line = InfoLines->Next(line))
       {
          Add(line->GetOsdItem());
 #if defined(APIVERSNUM) && APIVERSNUM >= 30013
-         const char *text = line->GetStr();
-         if (Font && !isempty(text)) {
-            if (const char *Tab1 = strchr(text, '\t')) {
-               int l = Font->Width(cString(text, Tab1));
-               if (l > t1)
-                  t1 = l;
-               if (const char *Tab2 = strchr(Tab1 + 1, '\t')) {
-                  int l = Font->Width(cString(Tab1 + 1, Tab2));
-                  if (l > t2)
-                     t2 = l;
+         if (font) {
+            const char *text = line->GetStr();
+            if (!isempty(text)) {
+               if (const char *tab1 = strchr(text, '\t')) {
+                  int l = font->Width(cString(text, tab1));
+                  if (l > t1)
+                     t1 = l;
+                  if (const char *tab2 = strchr(tab1 + 1, '\t')) {
+                     int l = font->Width(cString(tab1 + 1, tab2));
+                     if (l > t2)
+                        t2 = l;
+                  }
                }
             }
          }
@@ -93,19 +95,22 @@ void cMenuSystemInfo::Set()
       }
 
 #if defined(APIVERSNUM) && APIVERSNUM >= 30013
-      if (Font) {
+      if (font) {
          if (t1 > 0) {
-            t1 += Font->Width("  "); // to have some distance between name and value
-            if (Font->Width("M") > 1)
+            t1 += font->Width("  "); // to have some distance between name and value
+            if (font->Width("M") > 1)
                t1 = -t1;
          }
          if (t2 > 0) {
-            t2 += Font->Width("  "); // to have some distance between name and value
-            if (Font->Width("M") > 1)
+            t2 += font->Width("  "); // to have some distance between values
+            if (font->Width("M") > 1)
                t2 = -t2;
          }
       }
-      SetCols(t1, t2);
+      if ( t1 != 0 )
+         SetCols(t1, t2);
+      else
+         SetCols(14, 18);
 #else
       SetCols(14, 18);
 #endif
