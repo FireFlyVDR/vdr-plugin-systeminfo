@@ -20,13 +20,13 @@ private:
    bool isstatic;
    cOsdItem *osdItem;
 public:
-   cInfoLine(cString String, bool IsStatic) { osdItem = new cOsdItem(String); string = String; isstatic = IsStatic; } ;
+   cInfoLine(cString String, bool IsStatic) { osdItem = new cOsdItem(*String); string = String; isstatic = IsStatic; } ;
    ~cInfoLine() {};
    void SetStr(const char *String) { string = String; };
    const char *GetStr(void) const { return *string; };
    bool isStatic(void) { return isstatic; }
    cOsdItem *GetOsdItem(void) { return osdItem; }
-   void UpdateOsdText(void) { osdItem->SetText(string); };
+   void UpdateOsdText(void) { osdItem->SetText(*string); };
 };
 
 

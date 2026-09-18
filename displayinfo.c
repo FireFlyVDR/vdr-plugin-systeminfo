@@ -200,66 +200,66 @@ cString cInfoLines::PrepareInfoline(int Line, bool *IsStatic)
    cString systeminfo = ExecShellCmd(*cString::sprintf("%s %d", *scriptname, Line));
    //isyslog("systeminfo:  %2d, %s", Line, *systeminfo);
    if (!isempty(*systeminfo)) {
-      float fval1, fval2 = 0;
+      float total = 0, avail = 0;
       char *pname = NULL;
-      char *unit = NULL;
+      unsigned int n = -1;
       if (IsStatic) {
-         *IsStatic = !strncasecmp(*systeminfo, "s\t", 2);
-         systeminfo = *IsStatic ? cString(strdup((*systeminfo) + 2), true) : systeminfo;
+         *IsStatic = startswith(*systeminfo, "s\t");
+         if (*IsStatic) systeminfo = cString(strdup((*systeminfo) + 2), true);
       }
+      size_t len = strlen(*systeminfo);
 
       // check for two values (total and free) with our without 'kB' like e.g. disk usage
-      if (3 == sscanf(*systeminfo, "%m[a-zA-Z,/0-9 ]: %f %f", &pname, &fval1, &fval2) ||
-         (3 == sscanf(*systeminfo, "%m[a-zA-Z,/0-9 ]: %f kB %f kB", &pname, &fval1, &fval2)))
+      if ((3 == sscanf(*systeminfo, " %m[a-zA-Z0-9 _,./-]: %f %f %n", &pname, &total, &avail, &n) ||
+           3 == sscanf(*systeminfo, " %m[a-zA-Z0-9 _,./-]: %f kB %f kB %n", &pname, &total, &avail, &n)) && n == len)
       {
          compactspace(pname);
-         if (fval1 == 0.0)
-            osdline = cString::sprintf("%s:\t%.1f kB / %.1f kB", pname, fval1, fval2);
+         if (total == 0.0)
+            osdline = cString::sprintf("%s:\t%.1f kB / %.1f kB", pname, total, avail);
          else {
-            int frac = min(BARLEN, max(0, int((fval1 - fval2) * BARLEN / fval1)));
+            int frac = min(BARLEN, max(0, int((total - avail) * BARLEN / total)));
             memset(progressbar + 1,'|',frac);
             memset(progressbar + 1 + frac ,' ', BARLEN - frac);
 
             cString unit = "kB";
-            if (fval1 > 1024.0 && fval2 > 1024.0) {
-               fval1 /= 1024.0;
-               fval2 /= 1024.0;
+            if (total > 1024.0 && avail > 1024.0) {
+               total /= 1024.0;
+               avail /= 1024.0;
                unit = "MB";
-               if (fval1 > 1024.0 && fval2 > 1024.0) {
-                  fval1 /= 1024.0;
-                  fval2 /= 1024.0;
+               if (total > 1024.0 && avail > 1024.0) {
+                  total /= 1024.0;
+                  avail /= 1024.0;
                   unit = "GB";
                }
             }
-            osdline = cString::sprintf("%s:\t%.1f %s / %.1f %s\t%s", pname, fval1, *unit, fval2, *unit, progressbar);
+            osdline = cString::sprintf("%s:\t%.1f %s / %.1f %s\t%s", pname, total, *unit, avail, *unit, progressbar);
             free(pname);
          }
       }
 
       // check for CPU%
-      else if (strstr(systeminfo, "CPU%") && (1 == sscanf(*systeminfo, "%m[a-zA-Z,/0-9 ]: CPU%%", &pname)))
+      else if (1 == sscanf(*systeminfo, " %m[a-zA-Z0-9 _,./-]: CPU%%%n", &pname, &n) && n == len)
       {
          compactspace(pname);
-         fval2 = GetCpuPct();
-         int frac = min(BARLEN,max(0, int(fval2*BARLEN/100.0)));
+         avail = GetCpuPct();
+         int frac = min(BARLEN,max(0, int(avail*BARLEN/100.0)));
          memset(progressbar + 1,'|',frac);
          memset(progressbar + 1 + frac ,' ', BARLEN - frac);
 
-         osdline = cString::sprintf("%s:\t%.1f %%\t%s", pname, fval2, progressbar);
+         osdline = cString::sprintf("%s:\t%.1f %%\t%s", pname, avail, progressbar);
          free(pname);
       }
 
       // check for generic percentage
-      else if (3 == sscanf(*systeminfo, "%m[-a-zA-Z,/0-9 ]: %f %m[%]", &pname, &fval2, &unit)) {
-         if (fval2 <   0.0) fval2 =   0.0;
-         if (fval2 > 100.0) fval2 = 100.0;
-         int frac = min(BARLEN,max(0, int(fval2*BARLEN/100.0)));
+      else if (2 == sscanf(*systeminfo, " %m[a-zA-Z0-9 _,./-]: %f %% %n", &pname, &avail, &n) && n == len) {
+         if (avail <   0.0) avail =   0.0;
+         if (avail > 100.0) avail = 100.0;
+         int frac = min(BARLEN,max(0, int(avail*BARLEN/100.0)));
          memset(progressbar + 1,'|',frac);
          memset(progressbar + 1 + frac ,' ', BARLEN - frac);
 
-         osdline = cString::sprintf("%s:\t%.1f %s\t%s", pname, fval2, unit, progressbar);
+         osdline = cString::sprintf("%s:\t%.1f %%\t%s", pname, avail, progressbar);
          free(pname);
-         free(unit);
       }
       else
          osdline = systeminfo;
