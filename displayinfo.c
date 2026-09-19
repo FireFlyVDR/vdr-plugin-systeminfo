@@ -17,7 +17,7 @@ int RefreshInterval = 5;
 int AutoCloseSec = 20;
 
 // --- cMenuSystemInfo ----------------------------------------------------
-cMenuSystemInfo::cMenuSystemInfo(const char *Script)
+cMenuSystemInfo::cMenuSystemInfo(const char *Script, bool DebugMode)
 :cOsdMenu(tr("System Information"))
 {
    InfoLines = NULL;
@@ -30,7 +30,7 @@ cMenuSystemInfo::cMenuSystemInfo(const char *Script)
    else {
       Add(new cOsdItem(tr("please wait"), osUnknown, false));
 
-      InfoLines = new cInfoLines(Script);
+      InfoLines = new cInfoLines(Script, DebugMode);
       InfoLines->StateChanged(infolinesState); // init state
    }
    SetHelp(NULL, NULL, NULL, NULL);
@@ -127,11 +127,12 @@ void cMenuSystemInfo::Set()
 
 
 // --- cInfoLines ----------------------------------------------------
-cInfoLines::cInfoLines(const char *Script)
+cInfoLines::cInfoLines(const char *Script, bool DebugMode)
 :cThread("systeminfo", true)
 {
    state = 0;
    scriptname = Script;
+   debugMode = DebugMode;
    Start();
 }
 
@@ -198,7 +199,7 @@ cString cInfoLines::PrepareInfoline(int Line, bool *IsStatic)
    cString osdline;
 
    cString systeminfo = ExecShellCmd(*cString::sprintf("%s %d", *scriptname, Line));
-   //isyslog("systeminfo:  %2d, %s", Line, *systeminfo);
+   if (debugMode) isyslog("systeminfo1:  %2d '%s'", Line, *systeminfo);
    if (!isempty(*systeminfo)) {
       float total = 0, avail = 0;
       char *pname = NULL;
@@ -208,12 +209,21 @@ cString cInfoLines::PrepareInfoline(int Line, bool *IsStatic)
          if (*IsStatic) systeminfo = cString(strdup((*systeminfo) + 2), true);
       }
       size_t len = strlen(*systeminfo);
-
+      if (debugMode){
+         isyslog("systeminfo2:  %2d l=%2lu %c '%s'", Line, len, *IsStatic ? 'S':'D', *systeminfo);
+         int a1, a2, a3, a4, n1 = -1, n2 = -1, n3 = -1, n4 = -1;
+         a1 = sscanf(*systeminfo, " %m[a-zA-Z0-9 _,./-]: %f %f %n", &pname, &total, &avail, &n1);
+         a2 = sscanf(*systeminfo, " %m[a-zA-Z0-9 _,./-]: %f kB %f kB %n", &pname, &total, &avail, &n2);
+         a3 = sscanf(*systeminfo, " %m[a-zA-Z0-9 _,./-]: CPU%%%n", &pname, &n3);
+         a4 = sscanf(*systeminfo, " %m[a-zA-Z0-9 _,./-]: %f %% %n", &pname, &avail, &n4);
+         isyslog("systeminfo3:  %2d A: %1d/%2d %1d/%2d B: %1d/%2d C: %1d/%2d", Line, a1, n1, a2, n2, a3, n3, a4, n4);
+      }
       // check for two values (total and free) with our without 'kB' like e.g. disk usage
       if ((3 == sscanf(*systeminfo, " %m[a-zA-Z0-9 _,./-]: %f %f %n", &pname, &total, &avail, &n) ||
            3 == sscanf(*systeminfo, " %m[a-zA-Z0-9 _,./-]: %f kB %f kB %n", &pname, &total, &avail, &n)) && n == len)
       {
          compactspace(pname);
+         if (debugMode) isyslog("systeminfoA: '%s:' %2.1f %2.1f %2lu=%2d", pname, total, avail, len, n);
          if (total == 0.0)
             osdline = cString::sprintf("%s:\t%.1f kB / %.1f kB", pname, total, avail);
          else {
@@ -241,6 +251,7 @@ cString cInfoLines::PrepareInfoline(int Line, bool *IsStatic)
       else if (1 == sscanf(*systeminfo, " %m[a-zA-Z0-9 _,./-]: CPU%%%n", &pname, &n) && n == len)
       {
          compactspace(pname);
+         if (debugMode) isyslog("systeminfoB: '%s:' %2lu=%2d", pname, len, n);
          avail = GetCpuPct();
          int frac = min(BARLEN,max(0, int(avail*BARLEN/100.0)));
          memset(progressbar + 1,'|',frac);
@@ -252,6 +263,7 @@ cString cInfoLines::PrepareInfoline(int Line, bool *IsStatic)
 
       // check for generic percentage
       else if (2 == sscanf(*systeminfo, " %m[a-zA-Z0-9 _,./-]: %f %% %n", &pname, &avail, &n) && n == len) {
+         if (debugMode) isyslog("systeminfoC: '%s:' %2.1f %2lu=%2d", pname, avail, len, n);
          if (avail <   0.0) avail =   0.0;
          if (avail > 100.0) avail = 100.0;
          int frac = min(BARLEN,max(0, int(avail*BARLEN/100.0)));
@@ -261,8 +273,10 @@ cString cInfoLines::PrepareInfoline(int Line, bool *IsStatic)
          osdline = cString::sprintf("%s:\t%.1f %%\t%s", pname, avail, progressbar);
          free(pname);
       }
-      else
+      else {
+         if (debugMode) isyslog("systeminfoD: '%s' %2lu", *systeminfo, len);
          osdline = systeminfo;
+      }
    }
    return osdline;
 }
@@ -282,6 +296,7 @@ void cInfoLines::Action()
       }
    }
    while (Running() && (!isempty(*osdline) || isStatic) && line <= MAX_LINES);
+   debugMode = false;
 
    if (First() == NULL) {
       Add(new cInfoLine(tr("Error getting system information"), true));

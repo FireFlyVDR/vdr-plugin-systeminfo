@@ -65,6 +65,7 @@ void cMenuSetupSysteminfo::Store(void)
 class cPluginSysteminfo : public cPlugin {
 private:
    cString scriptname;
+   bool debugMode;
 public:
    cPluginSysteminfo(void);
    virtual ~cPluginSysteminfo();
@@ -86,6 +87,7 @@ cPluginSysteminfo::cPluginSysteminfo(void)
    // DON'T DO ANYTHING ELSE THAT MAY HAVE SIDE EFFECTS, REQUIRE GLOBAL
    // VDR OBJECTS TO EXIST OR PRODUCE ANY OUTPUT!
    scriptname = "/usr/local/bin/vdr-systeminfo.sh";
+   debugMode = false;
 }
 
 cPluginSysteminfo::~cPluginSysteminfo()
@@ -97,7 +99,8 @@ const char *cPluginSysteminfo::CommandLineHelp(void)
 {
    // Return a string that describes all known command line options.
    return "  -s SCRIPT, --script=SCRIPT   optional name and path of systeminfo script\n"
-          "                               (default: '/usr/local/bin/vdr-systeminfo.sh')\n";
+          "                               (default: '/usr/local/bin/vdr-systeminfo.sh')\n"
+          "  -d, --debug                  enable Debug Mode for logging to syslog\n";
 }
 
 bool cPluginSysteminfo::ProcessArgs(int argc, char *argv[])
@@ -105,13 +108,17 @@ bool cPluginSysteminfo::ProcessArgs(int argc, char *argv[])
    // Implement command line argument processing here if applicable.
    static struct option long_options[] = {
        { "script", required_argument, NULL, 's' },
+       { "debug", no_argument, NULL, 'd' },
        { NULL }
    };
    int c, option_index = 0;
-   while ((c = getopt_long(argc, argv, "s:", long_options, &option_index)) != -1) {
+   while ((c = getopt_long(argc, argv, "s:d", long_options, &option_index)) != -1) {
       switch (c) {
         case 's': scriptname = optarg;
                   isyslog("systeminfo: using systeminfo script: '%s'", *scriptname);
+                  break;
+        case 'd': debugMode = true;
+                  isyslog("systeminfo: debug mode enabled");
                   break;
         default:
                   isyslog("systeminfo: unknown command-line argument: '%s'", optarg);
@@ -136,7 +143,7 @@ bool cPluginSysteminfo::Start(void)
 cOsdObject *cPluginSysteminfo::MainMenuAction(void)
 {
    // Perform the action when selected from the main VDR menu.
-   return new cMenuSystemInfo(*scriptname);
+   return new cMenuSystemInfo(*scriptname, debugMode);
 }
 
 cMenuSetupPage *cPluginSysteminfo::SetupMenu(void)

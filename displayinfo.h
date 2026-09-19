@@ -34,6 +34,7 @@ class cInfoLines : public cList<cInfoLine>, public cThread {
 private:
    std::atomic<int> state;
    cString scriptname;
+   bool debugMode;
    cCondWait Wait;
    unsigned long long ticks[4], ticksold[4];
 
@@ -42,7 +43,7 @@ private:
    cString ExecShellCmd(const char *Cmd);
    cString PrepareInfoline(int Line, bool *IsStatic = NULL);
 public:
-   cInfoLines(const char *Script);
+   cInfoLines(const char *Script, bool DebugMode);
    ~cInfoLines();
    bool StateChanged(int &State);
 };
@@ -56,7 +57,7 @@ private:
    cTimeMs autocloseTimer;
    void Set(void);
 public:
-   cMenuSystemInfo(const char *Script);
+   cMenuSystemInfo(const char *Script, bool DebugMode);
    virtual ~cMenuSystemInfo();
    virtual eOSState ProcessKey(eKeys Key);
 };
