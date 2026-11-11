@@ -48,3 +48,16 @@ VDR Plugin 'systeminfo' Revision History
 - change dist package to .tar.gz
 - internal redesign, add support for dynamic column width of VDR 2.8.2+
 - added number of OS updates to vdr-systeminfo.sh and simplified getting distribution name
+
+2026-11-11: Version 0.2.1
+- fix APIVERSNUM for dynamic column width
+- fix serveral typos in HISTORY and README (provided by SHofmann @vdr-portal.de)
+- fix typo in description (provided by SHofmann @vdr-portal.de)
+- rename RefreshInterval
+- added support for static empty lines (suggested by SHofmann @vdr-portal.de)
+- added display of OS updates for Fedora and Endeavouros/Arch Linux (suggested by fiveten_59 @vdr-portal.de)
+- added support for script lines with percent value like "name: 99%" to show a progress bar (provided by SHofmann @vdr-portal.de)
+- improve and optimize calculation of column width
+- improve parsing of script output
+- implement debug mode to log behaviour of parsing imput (enable with --debug parameter)
+- made static empty lines unselectable (suggested by SHofmann @vdr-portal.de)
