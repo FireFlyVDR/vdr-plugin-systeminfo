@@ -70,6 +70,7 @@ considered 'static' which means that it will only be evaluated during the first 
 cycle. This reduces the load of the machine as for example cpu type, distribution and
 kernel version are very unlikely to change during the display period and therefore are
 only evaluated once.
+To display an empty line e.g. for grouping of values let the script simply print "s\t".
 The time between two display updates can be modified in the plugin's settings and there's
 also an entry to select if the display should be closed automatically after a selectable
 amount of seconds or not.
